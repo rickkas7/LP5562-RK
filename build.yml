@@ -1,0 +1,12 @@
+- build: examples/1-simple-LP5562-RK
+  photon: [0.6.3, 0.7.0, 0.8.0-rc.8, 1.1.0]
+  p1: [latest]
+  electron: [latest]
+  argon: [0.8.0-rc.27, 0.9.0, latest]
+  boron: [latest]
+  xenon: [latest]
+- build: examples/2-hardware-test-LP5562-RK
+  argon: [latest]
+- build: examples/3-test-suite-LP5562-RK
+  argon: [latest]
+  
