@@ -9,4 +9,6 @@
   argon: [latest]
 - build: examples/3-test-suite-LP5562-RK
   argon: [latest]
-  
+- build: examples/4-indicators-LP5562-RK
+  argon: [latest]
+

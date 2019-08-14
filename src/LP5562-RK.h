@@ -497,6 +497,15 @@ public:
 	void setBreathe(bool red, bool green, bool blue, uint8_t stepTimeHalfMs, uint8_t lowLevel, uint8_t highLevel);
 
 	/**
+	 * @brief Set indicator mode
+	 *
+	 * Engine 1 = Blink
+	 * Engine 2 = Fast Blink
+	 * Engine 3 = Breathe
+	 */
+	void setIndicatorMode(unsigned long on1ms = 500, unsigned long off1ms = 500, unsigned long on2ms = 100, unsigned long off2ms = 100, uint8_t breatheTime = 20);
+
+	/**
 	 * @brief Set ledMapping to program. Not normally necessary.
 	 *
 	 * @param red REG_LED_MAP_DIRECT (direct RGB, default), REG_LED_MAP_ENGINE_1, REG_LED_MAP_ENGINE_2, or REG_LED_MAP_ENGINE_3.
@@ -511,6 +520,43 @@ public:
 	 * setRGB, setBlink, setBlink2, or setBreathe so you don't normally need to call this yourself.
 	 */
 	bool setLedMapping(uint8_t red, uint8_t green, uint8_t blue, uint8_t white);
+
+	/**
+	 * @brief Set the led mapping for the red LED. Typically used in indicator mode to set direct or program mode.
+	 *
+	 * @brief mode REG_LED_MAP_DIRECT (direct RGB, default), REG_LED_MAP_ENGINE_1, REG_LED_MAP_ENGINE_2, or REG_LED_MAP_ENGINE_3
+	 *
+	 * @brief value If using REG_LED_MAP_DIRECT, the intensity value 0 = off, 255 = full brightness
+	 */
+	bool setLedMappingR(uint8_t mode, uint8_t value = 0);
+
+
+	/**
+	 * @brief Set the led mapping for the green LED. Typically used in indicator mode to set direct or program mode.
+	 *
+	 * @brief mode REG_LED_MAP_DIRECT (direct RGB, default), REG_LED_MAP_ENGINE_1, REG_LED_MAP_ENGINE_2, or REG_LED_MAP_ENGINE_3
+	 *
+	 * @brief value If using REG_LED_MAP_DIRECT, the intensity value 0 = off, 255 = full brightness
+	 */
+	bool setLedMappingG(uint8_t mode, uint8_t value = 0);
+
+	/**
+	 * @brief Set the led mapping for the blue LED. Typically used in indicator mode to set direct or program mode.
+	 *
+	 * @brief mode REG_LED_MAP_DIRECT (direct RGB, default), REG_LED_MAP_ENGINE_1, REG_LED_MAP_ENGINE_2, or REG_LED_MAP_ENGINE_3
+	 *
+	 * @brief value If using REG_LED_MAP_DIRECT, the intensity value 0 = off, 255 = full brightness
+	 */
+	bool setLedMappingB(uint8_t mode, uint8_t value = 0);
+
+	/**
+	 * @brief Set the led mapping for the white LED. Typically used in indicator mode to set direct or program mode.
+	 *
+	 * @brief mode REG_LED_MAP_DIRECT (direct RGB, default), REG_LED_MAP_ENGINE_1, REG_LED_MAP_ENGINE_2, or REG_LED_MAP_ENGINE_3
+	 *
+	 * @brief value If using REG_LED_MAP_DIRECT, the intensity value 0 = off, 255 = full brightness
+	 */
+	bool setLedMappingW(uint8_t mode, uint8_t value = 0);
 
 	/**
 	 * @brief Get the value of the LED mapping register (0x70)

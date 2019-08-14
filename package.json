@@ -1,5 +1,5 @@
 {
-    "name": "24LC01-RK",
+    "name": "Adafruit_SSD1306_RK",
     "version": "0.0.1",
     "description": "Travis build script",
     "private": true,

@@ -276,6 +276,57 @@ bool LP5562::setLedMapping(uint8_t red, uint8_t green, uint8_t blue, uint8_t whi
 	return writeRegister(REG_LED_MAP, value);
 }
 
+bool LP5562::setLedMappingR(uint8_t mode, uint8_t value) {
+	uint8_t regValue = getLedMapping();
+
+	regValue &= 0b11001111;
+	regValue |= (mode & 0b11) << 4;
+
+	if (mode == 0) {
+		(void) writeRegister(REG_R_PWM, value);
+	}
+
+	return writeRegister(REG_LED_MAP, regValue);
+}
+
+bool LP5562::setLedMappingG(uint8_t mode, uint8_t value) {
+	uint8_t regValue = getLedMapping();
+
+	regValue &= 0b11110011;
+	regValue |= (mode & 0b11) << 2;
+
+	if (mode == 0) {
+		(void) writeRegister(REG_G_PWM, value);
+	}
+
+	return writeRegister(REG_LED_MAP, regValue);
+}
+
+bool LP5562::setLedMappingB(uint8_t mode, uint8_t value) {
+	uint8_t regValue = getLedMapping();
+
+	regValue &= 0b11111100;
+	regValue |= (mode & 0b11);
+
+	if (mode == 0) {
+		(void) writeRegister(REG_B_PWM, value);
+	}
+
+	return writeRegister(REG_LED_MAP, regValue);
+}
+
+bool LP5562::setLedMappingW(uint8_t mode, uint8_t value) {
+	uint8_t regValue = getLedMapping();
+
+	regValue &= 0b00111111;
+	regValue |= (mode & 0b11) << 6;
+
+	if (mode == 0) {
+		(void) writeRegister(REG_W_PWM, value);
+	}
+
+	return writeRegister(REG_LED_MAP, regValue);
+}
 
 
 bool LP5562::setEnable(uint8_t engineMask, uint8_t engineMode) {
@@ -385,6 +436,53 @@ void LP5562::useDirectW() {
 	}
 }
 
+void LP5562::setIndicatorMode(unsigned long on1ms, unsigned long off1ms, unsigned long on2ms, unsigned long off2ms, uint8_t breatheTime) {
+
+	// Engine 1 = Blink
+	// Engine 2 = Fast Blink
+	// Engine 3 = Breathe
+
+	clearAllPrograms();
+
+
+	LP5562Program program;
+
+	// The main program is either 6 or 8 instructions. When msOn or msOff is > 1000 ms, then the delay requires 2 instructions.
+
+	// Normally blink
+	program.addCommandSetPWM(255); // full brightness
+	program.addDelay(on1ms);
+	program.addCommandSetPWM(0); // off
+	program.addDelay(off1ms);
+	program.addCommandGoToStart();
+	setProgram(1, program, false);
+
+	// Normally fast blink
+	program.clear();
+	program.addCommandSetPWM(255); // full brightness
+	program.addDelay(on2ms);
+	program.addCommandSetPWM(0); // off
+	program.addDelay(off2ms);
+	program.addCommandGoToStart();
+	setProgram(2, program, false);
+
+	// Breathe
+	program.clear();
+	program.addCommandSetPWM(0); // Start at lowLevel
+	program.addCommandRamp(false, breatheTime, false, 255); // Ramp up
+	program.addCommandRamp(false, breatheTime, true, 255); // Ramp down
+	setProgram(3, program, false);
+
+
+	// Default to LEDs off
+	setLedMapping(REG_LED_MAP_DIRECT, REG_LED_MAP_DIRECT, REG_LED_MAP_DIRECT, REG_LED_MAP_DIRECT);
+	setRGB(0, 0, 0);
+	setW(0);
+
+	setEnable(MASK_ENGINE_ALL, REG_ENABLE_RUN);
+
+
+}
 
 void LP5562::setBlink(uint8_t red, uint8_t green, uint8_t blue, unsigned long msOn, unsigned long msOff) {
 	LP5562Program program;

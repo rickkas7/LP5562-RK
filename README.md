@@ -24,11 +24,16 @@ The third option is to use an I2C LED driver. That's what this library is for. I
 - It has a programmable constant current driver so you don't need current limiting resistors
 - It's a programmable smart controller so many LED patterns can be made without intervention from the MCU
 
-What's the downside? It does add a chip ($1.14 in single quantities). The biggest challenge is that it's only available in a DSBGA12. This is a really, really tiny 3x4 BGA (ball grid array) chip. 1.648 mm x 1.248 mm. It's barely larger than an 0805 resistor, but with 12 pins. It can only be reflowed; it's obviously not possible to solder with a soldering iron.
+What's the downside? It does add a chip ($1.14 in single quantities). The biggest challenge is that it's only available in a DSBGA12 package. This is a really, really tiny 3x4 BGA (ball grid array) chip. 1.648 mm x 1.248 mm. It's barely larger than an 0805 resistor, but with 12 pins. It can only be reflowed; it's obviously not possible to solder with a soldering iron.
 
 On the plus side, you can put one of these on your board and it takes up less space than 3x  0603 current limiting resistors.
 
-While it's designed to drive an RGB LED plus one extra LED (white), it actually can drive any four independent LEDs, though the library is mainly focused on the RGB use case.
+While it's designed to drive an RGB LED plus one extra LED (white), it actually can drive any four independent LEDs. There are a couple benefits of using "indicator mode":
+
+- You can drive 4x LEDs up to 25.5 mA
+- Only uses I2C, no GPIO
+- Full programmable to be on/dim/off, plus programmable patterns like blink or breathe
+
 
 ### The library
 
@@ -107,7 +112,7 @@ Address 3 (AD1 = 1, AD0 = 1, 0x33):
 ![Address 3](images/Addr3.png)
 
 
-### Demo Board
+### RGB Demo Board
 
 I made a simple demo board to test and illustrate the use of the chip. 
 
@@ -141,6 +146,57 @@ The eagle subdirectory contains the open source design:
 | 1 | RGB LED | [Cree CLMVC-FKA-CL1D1L71BB7C3C3](https://www.digikey.com/product-detail/en/cree-inc/CLMVC-FKA-CL1D1L71BB7C3C3/CLMVC-FKA-CL1D1L71BB7C3C3CT-ND/9094273 CLMVC-FKA-CL1D1L71BB7C3C3) | $0.19 |
 | 1 | White LED | [Lite-On Inc. LTW-C191DS5](https://www.digikey.com/product-detail/en/lite-on-inc/LTW-C191DS5/160-2239-1-ND/7708913) | $0.55 |
 | 2 | 10K Resistor 0603 | [Panasonic ERJ-PA3J103V](https://www.digikey.com/product-detail/en/panasonic-electronic-components/ERJ-PA3J103V/P10KBZCT-ND/5036237) | $0.10 | 
-| | Male header pins 0.1" | [Sullins PRPC040SAAN-RC](https://www.digikey.com/product-detail/en/PRPC040SAAN-RC/S1011EC-40-ND/2775214) | |
+|   | Male header pins 0.1" | [Sullins PRPC040SAAN-RC](https://www.digikey.com/product-detail/en/PRPC040SAAN-RC/S1011EC-40-ND/2775214) |  |
+
+### Indicator Demo Board
+
+This demo board tests 4 discrete LEDs instead of using an RGB LED. I made it using T-1 (3mm) through hole LEDs because I had a kit of them so I could use 3 20mA LEDs and 1 10mA LEDs. 
+
+![Indicator Board](images/board2-image.jpg)
+
+Schematic:
+
+![Indicator Schematic](images/board2-schematic.png)
+
+Board:
+
+![Indicator Board](images/board2.png)
+
+The main difference between indicator mode and RGB mode is how the engines are set up. Because there are four LEDs and 3 engines, indicator mode sets up the three engines with common patterns:
+
+- Blink
+- Fast blink
+- Breathe
+
+Then you can assign any LED to be on, dim, off, or one of the three available patterns. This provides a lot of flexibility given the hardware limitations of the LP5562. Of course the full LP5562 programming API is available as well if you want to go crazy with the customization.
+
+If you are using LEDs with different current requirements you can use the `withLEDCurrent()` overload with separate settings for red, green, blue, and white. 
+
+```
+ledDriver.withLEDCurrent(20.0, 20.0, 20.0, 10.0).begin();
+```
+
+To use indicator mode, use `setIndicatorMode()`.
+
+```
+ledDriver.setIndicatorMode();
+```
+
+To set an LED, use one of the setLedMapping methods:
+
+```
+ledDriver.setLedMappingR(LP5562::REG_LED_MAP_DIRECT, 0);
+ledDriver.setLedMappingG(LP5562::REG_LED_MAP_ENGINE_1);
+ledDriver.setLedMappingB(LP5562::REG_LED_MAP_ENGINE_2);
+ledDriver.setLedMappingW(LP5562::REG_LED_MAP_ENGINE_3);
+```
+
+- `LP5562::REG_LED_MAP_DIRECT` sets a direct PWM value. 0 is off, 255 is full brightness, and values in between are dimmed.
+- `LP5562::REG_LED_MAP_ENGINE_1` is a normal blink. 
+- `LP5562::REG_LED_MAP_ENGINE_2` is a fast blink.
+- `LP5562::REG_LED_MAP_ENGINE_3` is breathing. 
+
+
+
 
 
